@@ -10,6 +10,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: ProductOverviewScreen(),
+      theme: ThemeData(
+          primaryColor: Colors.purple,
+          accentColor: Colors.orange,
+          fontFamily: 'Lato'),
     );
   }
 }
