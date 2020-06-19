@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:shopaholic/screens/product_detail_screen.dart';
-import '../models/product.dart';
+import 'package:provider/provider.dart';
+import '../screens/product_detail_screen.dart';
+import '../providers/product_provider.dart';
 
 class ProductItem extends StatelessWidget {
-  final Product product;
-  ProductItem(this.product);
   @override
   Widget build(BuildContext context) {
+    final product = Provider.of<Product>(context);
+    print(product.isFavorite);
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: GridTile(
         child: GestureDetector(
           onTap: () {
-            Navigator.of(context).push(
-                MaterialPageRoute(builder: (ctx) => ProductDetailScreen()));
+            Navigator.of(context).pushNamed(ProductDetailScreen.routeName,
+                arguments: product.id);
           },
           child: Image.network(
             product.imageURL,
@@ -31,18 +32,21 @@ class ProductItem extends StatelessWidget {
               Icons.shopping_cart,
               color: Theme.of(context).accentColor,
             ),
-            onPressed: () {
-              Navigator.of(context).pushNamed(ProductDetailScreen.routeName,
-                  arguments: product.id);
-            },
+            onPressed: () {},
           ),
           trailing: IconButton(
-            icon: Icon(
-              Icons.favorite,
-              color: Theme.of(context).accentColor,
-            ),
-            onPressed: null,
-          ),
+              icon: product.isFavorite
+                  ? Icon(
+                      Icons.favorite,
+                      color: Theme.of(context).accentColor,
+                    )
+                  : Icon(
+                      Icons.favorite_border,
+                      color: Theme.of(context).accentColor,
+                    ),
+              onPressed: () {
+                product.toggleFavoriteStatus();
+              }),
         ),
       ),
     );

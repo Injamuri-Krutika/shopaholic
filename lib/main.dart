@@ -15,7 +15,6 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (ctx) => ProductsProvider(),
       child: MaterialApp(
-        home: ProductOverviewScreen(),
         theme: ThemeData(
             primaryColor: Colors.purple,
             accentColor: Colors.orange,
