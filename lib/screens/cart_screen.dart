@@ -30,7 +30,7 @@ class CartScreen extends StatelessWidget {
                         builder: (_, cart, _2) => Chip(
                               label: FittedBox(
                                 child: Text(
-                                  "\$${cart.totalAmount}",
+                                  "\$${cart.totalAmount.toStringAsFixed(2)}",
                                   style: TextStyle(
                                       color: Theme.of(context)
                                           .primaryTextTheme
