@@ -21,6 +21,7 @@ class Cart with ChangeNotifier {
   }
 
   int get itemCount {
+    print(_items.length);
     return _items
         .length; // you can chnage this to show the sum(quantities as well)
   }
@@ -57,6 +58,25 @@ class Cart with ChangeNotifier {
 
   void removeItem(String prodId) {
     _items.remove(prodId);
+    notifyListeners();
+  }
+
+  void removeSingleItem(String prodId) {
+    if (!_items.containsKey(prodId)) {
+      return;
+    }
+    if (_items[prodId].quantity > 1) {
+      _items.update(
+          prodId,
+          (existingCartItem) => CartItem(
+              id: existingCartItem.id,
+              title: existingCartItem.title,
+              quantity: existingCartItem.quantity - 1,
+              price: existingCartItem.price));
+    } else {
+      _items.remove(prodId);
+    }
+
     notifyListeners();
   }
 
