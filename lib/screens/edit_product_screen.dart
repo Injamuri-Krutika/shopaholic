@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../providers/products_provider.dart';
 
 import '../providers/product_provider.dart';
 
@@ -18,6 +19,13 @@ class EditProductScreenState extends State<EditProductScreen> {
 
   var _editedProduct = Product(
       id: null, title: null, subtitle: null, price: null, imageURL: null);
+
+  var _initValues = {
+    'title': '',
+    'price': '',
+    'description': '',
+    'imageUrl': '',
+  };
   @override
   void dispose() {
     _imageUrlFocusNode.removeListener(_updateImageUrl);
@@ -29,10 +37,32 @@ class EditProductScreenState extends State<EditProductScreen> {
     super.dispose();
   }
 
+  var isInit = true;
   @override
   void initState() {
     _imageUrlFocusNode.addListener(_updateImageUrl);
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    if (isInit) {
+      final prodId = ModalRoute.of(context).settings.arguments as String;
+      if (prodId != null) {
+        _editedProduct = Provider.of<ProductsProvider>(context, listen: false)
+            .findById(prodId);
+
+        _initValues = {
+          'title': _editedProduct.title,
+          'price': _editedProduct.price.toString(),
+          'description': _editedProduct.subtitle,
+          'imageUrl': '',
+        };
+        _imageUrlController.text = _editedProduct.imageURL;
+      }
+    }
+
+    super.didChangeDependencies();
   }
 
   void _updateImageUrl() {
@@ -54,11 +84,14 @@ class EditProductScreenState extends State<EditProductScreen> {
       _form.currentState.save();
     else
       return;
-    print(_editedProduct.id);
-    print(_editedProduct.title);
-
-    print(_editedProduct.price);
-    print(_editedProduct.subtitle);
+    if (_editedProduct.id == null) {
+      Provider.of<ProductsProvider>(context, listen: false)
+          .addProduct(_editedProduct);
+    } else {
+      Provider.of<ProductsProvider>(context, listen: false)
+          .updateProduct(_editedProduct.id, _editedProduct);
+    }
+    Navigator.of(context).pop();
   }
 
   @override
@@ -80,6 +113,7 @@ class EditProductScreenState extends State<EditProductScreen> {
             child: ListView(
               children: [
                 TextFormField(
+                  initialValue: _initValues['title'],
                   decoration: InputDecoration(labelText: 'Title*'),
                   textInputAction: TextInputAction.next,
                   onFieldSubmitted: (value) {
@@ -91,7 +125,8 @@ class EditProductScreenState extends State<EditProductScreen> {
                         title: value,
                         subtitle: _editedProduct.subtitle,
                         price: _editedProduct.price,
-                        imageURL: _editedProduct.imageURL);
+                        imageURL: _editedProduct.imageURL,
+                        isFavorite: _editedProduct.isFavorite);
                   },
                   validator: (value) {
                     String text = null;
@@ -100,6 +135,7 @@ class EditProductScreenState extends State<EditProductScreen> {
                   },
                 ),
                 TextFormField(
+                  initialValue: _initValues['price'],
                   decoration: InputDecoration(labelText: 'Price*'),
                   textInputAction: TextInputAction.next,
                   keyboardType: TextInputType.number,
@@ -113,7 +149,8 @@ class EditProductScreenState extends State<EditProductScreen> {
                         title: _editedProduct.title,
                         subtitle: _editedProduct.subtitle,
                         price: double.parse(value),
-                        imageURL: _editedProduct.imageURL);
+                        imageURL: _editedProduct.imageURL,
+                        isFavorite: _editedProduct.isFavorite);
                   },
                   validator: (value) {
                     if (value.isEmpty) return "Please provide a value.";
@@ -125,6 +162,7 @@ class EditProductScreenState extends State<EditProductScreen> {
                   },
                 ),
                 TextFormField(
+                  initialValue: _initValues['description'],
                   decoration: InputDecoration(labelText: 'Description*'),
                   maxLines: 3,
                   keyboardType: TextInputType.multiline,
@@ -135,7 +173,8 @@ class EditProductScreenState extends State<EditProductScreen> {
                         title: _editedProduct.title,
                         subtitle: value,
                         price: _editedProduct.price,
-                        imageURL: _editedProduct.imageURL);
+                        imageURL: _editedProduct.imageURL,
+                        isFavorite: _editedProduct.isFavorite);
                   },
                   validator: (value) {
                     String text = null;
@@ -182,7 +221,8 @@ class EditProductScreenState extends State<EditProductScreen> {
                               title: _editedProduct.title,
                               subtitle: _editedProduct.subtitle,
                               price: _editedProduct.price,
-                              imageURL: value);
+                              imageURL: value,
+                              isFavorite: _editedProduct.isFavorite);
                         },
                         validator: (value) {
                           if (value.isEmpty) return "Please provide a value.";
