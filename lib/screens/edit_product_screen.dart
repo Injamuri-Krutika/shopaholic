@@ -36,13 +36,24 @@ class EditProductScreenState extends State<EditProductScreen> {
   }
 
   void _updateImageUrl() {
+    var value = _imageUrlController.text;
     if (!_imageUrlFocusNode.hasFocus) {
+      if ((!value.startsWith('http') && !value.startsWith("https") ||
+          (!value.endsWith('jpg') &&
+              !value.endsWith("jpeg") &&
+              !value.endsWith("png")))) {
+        return;
+      }
       setState(() {});
     }
   }
 
   void _saveForm() {
-    _form.currentState.save();
+    final _isValid = _form.currentState.validate();
+    if (_isValid)
+      _form.currentState.save();
+    else
+      return;
     print(_editedProduct.id);
     print(_editedProduct.title);
 
@@ -69,7 +80,7 @@ class EditProductScreenState extends State<EditProductScreen> {
             child: ListView(
               children: [
                 TextFormField(
-                  decoration: InputDecoration(labelText: 'Title'),
+                  decoration: InputDecoration(labelText: 'Title*'),
                   textInputAction: TextInputAction.next,
                   onFieldSubmitted: (value) {
                     FocusScope.of(context).requestFocus(_priceFocusNode);
@@ -82,9 +93,14 @@ class EditProductScreenState extends State<EditProductScreen> {
                         price: _editedProduct.price,
                         imageURL: _editedProduct.imageURL);
                   },
+                  validator: (value) {
+                    String text = null;
+                    if (value.isEmpty) text = "Please provide a value.";
+                    return text;
+                  },
                 ),
                 TextFormField(
-                  decoration: InputDecoration(labelText: 'Price'),
+                  decoration: InputDecoration(labelText: 'Price*'),
                   textInputAction: TextInputAction.next,
                   keyboardType: TextInputType.number,
                   focusNode: _priceFocusNode,
@@ -99,9 +115,17 @@ class EditProductScreenState extends State<EditProductScreen> {
                         price: double.parse(value),
                         imageURL: _editedProduct.imageURL);
                   },
+                  validator: (value) {
+                    if (value.isEmpty) return "Please provide a value.";
+                    if (double.tryParse(value) == null)
+                      return "Please enter a valid number";
+                    if (double.parse(value) <= 0)
+                      return "Please enter a number greater than zero";
+                    return null;
+                  },
                 ),
                 TextFormField(
-                  decoration: InputDecoration(labelText: 'Description'),
+                  decoration: InputDecoration(labelText: 'Description*'),
                   maxLines: 3,
                   keyboardType: TextInputType.multiline,
                   focusNode: _descriptionFocusNode,
@@ -112,6 +136,13 @@ class EditProductScreenState extends State<EditProductScreen> {
                         subtitle: value,
                         price: _editedProduct.price,
                         imageURL: _editedProduct.imageURL);
+                  },
+                  validator: (value) {
+                    String text = null;
+                    if (value.isEmpty) return "Please provide a value.";
+                    if (value.length < 10)
+                      return "Should be atleast 10 chars long";
+                    return text;
                   },
                   // textInputAction: TextInputAction.next,
                   // onFieldSubmitted: (value) {
@@ -139,7 +170,7 @@ class EditProductScreenState extends State<EditProductScreen> {
                     ),
                     Expanded(
                       child: TextFormField(
-                        decoration: InputDecoration(labelText: 'Image URL'),
+                        decoration: InputDecoration(labelText: 'Image URL*'),
                         keyboardType: TextInputType.url,
                         textInputAction: TextInputAction.done,
                         controller: _imageUrlController,
@@ -152,6 +183,17 @@ class EditProductScreenState extends State<EditProductScreen> {
                               subtitle: _editedProduct.subtitle,
                               price: _editedProduct.price,
                               imageURL: value);
+                        },
+                        validator: (value) {
+                          if (value.isEmpty) return "Please provide a value.";
+                          if (!value.startsWith('http') &&
+                              !value.startsWith("https"))
+                            return "Please enter a valid url";
+                          if (!value.endsWith('jpg') &&
+                              !value.endsWith("jpeg") &&
+                              !value.endsWith("png"))
+                            return "Please enter a valid url";
+                          return null;
                         },
                       ),
                     )
