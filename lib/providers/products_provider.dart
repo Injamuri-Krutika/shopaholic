@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
-import '../providers/product_provider.dart';
+import './product_provider.dart';
 
 class ProductsProvider with ChangeNotifier {
   List<Product> _items = [
@@ -47,6 +49,16 @@ class ProductsProvider with ChangeNotifier {
   }
 
   void addProduct(Product product) {
+    const url = 'https://flutter-update-cd3c8.firebaseio.com/products.json';
+    http.post(url,
+        body: json.encode({
+          'title': product.title,
+          'subtitle': product.subtitle,
+          'imageURL': product.imageURL,
+          'price': product.price,
+          'isFavorite': product.isFavorite,
+        }));
+
     final newProduct = Product(
         id: DateTime.now().toString(),
         title: product.title,
