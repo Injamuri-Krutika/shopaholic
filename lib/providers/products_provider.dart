@@ -62,9 +62,18 @@ class ProductsProvider with ChangeNotifier {
     }
   }
 
-  void updateProduct(String id, Product newProduct) {
-    final prodIndx = _items.indexWhere((prod) => (prod.id == id));
-    if (prodIndx > 0) {
+  Future<void> updateProduct(String id, Product newProduct) async {
+    final prodIndx = _items.indexWhere((prod) => prod.id == id);
+    if (prodIndx >= 0) {
+      final url =
+          'https://flutter-update-cd3c8.firebaseio.com/products/$id.json';
+      await http.patch(url,
+          body: json.encode({
+            'title': newProduct.title,
+            'subtitle': newProduct.subtitle,
+            'imageURL': newProduct.imageURL,
+            'price': newProduct.price,
+          }));
       _items[prodIndx] = newProduct;
       notifyListeners();
     } else {

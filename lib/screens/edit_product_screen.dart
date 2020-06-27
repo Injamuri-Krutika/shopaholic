@@ -88,36 +88,36 @@ class EditProductScreenState extends State<EditProductScreen> {
       });
     } else
       return;
-    if (_editedProduct.id == null) {
-      try {
+    try {
+      if (_editedProduct.id == null) {
         await Provider.of<ProductsProvider>(context, listen: false)
             .addProduct(_editedProduct);
-      } catch (error) {
-        await showDialog(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: Text('An error occured!'),
-            content: Text('Something went wrong. Please try later!'),
-            actions: [
-              FlatButton(
-                child: Text('Okay'),
-                onPressed: () {
-                  Navigator.of(ctx).pop();
-                },
-              )
-            ],
-          ),
-        );
-      } finally {
-        setState(() {
-          _isLoading = false;
-        });
-        Navigator.of(context).pop();
+      } else {
+        await Provider.of<ProductsProvider>(context, listen: false)
+            .updateProduct(_editedProduct.id, _editedProduct);
       }
-    } else {
-      Provider.of<ProductsProvider>(context, listen: false)
-          .updateProduct(_editedProduct.id, _editedProduct);
+    } catch (error) {
+      print(error);
+      await showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text('An error occured!'),
+          content: Text('Something went wrong. Please try later!'),
+          actions: [
+            FlatButton(
+              child: Text('Okay'),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+            )
+          ],
+        ),
+      );
     }
+    setState(() {
+      _isLoading = false;
+    });
+    Navigator.of(context).pop();
   }
 
   @override
