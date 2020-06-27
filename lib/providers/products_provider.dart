@@ -48,9 +48,9 @@ class ProductsProvider with ChangeNotifier {
     return [..._items.where((element) => element.isFavorite == true)];
   }
 
-  void addProduct(Product product) {
-    const url = 'https://flutter-update-cd3c8.firebaseio.com/products.json';
-    http
+  Future<void> addProduct(Product product) {
+    const url = 'https://flutter-update-cd3c8.firebaseio.com/products';
+    return http
         .post(url,
             body: json.encode({
               'title': product.title,
@@ -69,6 +69,9 @@ class ProductsProvider with ChangeNotifier {
           imageURL: product.imageURL);
       _items.add(newProduct);
       notifyListeners();
+    }).catchError((error) {
+      print(error);
+      throw error;
     });
   }
 
